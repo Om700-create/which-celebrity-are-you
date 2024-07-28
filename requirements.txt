@@ -1,0 +1,7 @@
+pandas
+numpy
+tensorflow
+mtcnn
+streamlit
+
+-e .
