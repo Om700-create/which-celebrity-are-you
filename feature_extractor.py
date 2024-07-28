@@ -1,14 +1,41 @@
-import os
+
+
+#import os
+#import pickle
+
+#actors = os.listdir('data')
+
+#filenames = []
+
+#for actor in actors:
+    #for file in os.listdir(os.path.join('data',actor)):
+        #filenames.append(os.path.join('data',actor,file))
+
+#pickle.dump(filenames,open('filenames.pkl','wb'))
+from tensorflow.keras.preprocessing import image
+from keras_vggface.utils import preprocess_input
+from keras_vggface.vggface import VGGFace
+import numpy as np
 import pickle
+from tqdm import tqdm
 
-'''actors = os.listdir('ndata')
+filenames = pickle.load(open('filenames.pkl','rb'))
 
-filenames = []
+model = VGGFace(model='resnet50',include_top=False,input_shape=(224,224,3),pooling='avg')
 
-for actor in actors:
-    for file in os.listdir(os.path.join('ndata',actor)):
-        filenames.append(os.path.join('ndata',actor,file))
+def feature_extractor(img_path,model):
+    img = image.load_img(img_path,target_size=(224,224))
+    img_array = image.img_to_array(img)
+    expanded_img = np.expand_dims(img_array,axis=0)
+    preprocessed_img = preprocess_input(expanded_img)
 
-pickle.dump(filenames,open('filenames.pkl','wb'))'''
+    result = model.predict(preprocessed_img).flatten()
 
-# After getting pickle file of data we don't need above code, so i comment it out.
+    return result
+
+features = []
+
+for file in tqdm(filenames):
+    features.append(feature_extractor(file,model))
+
+pickle.dump(features,open('embedding.pkl','wb'))
